@@ -219,4 +219,4 @@ xyplot(
 )
 ```
 
-It appears as though weekends are the most active time for the peopel in the study.
+It appears as though weekends are the most active time for the people in the study.
