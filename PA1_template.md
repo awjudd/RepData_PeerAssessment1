@@ -1,11 +1,7 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
-```{r message=FALSE, warning=FALSE}
+
+```r
 # Load the lattice library (used near the end)
 library(lattice)
 ```
@@ -15,7 +11,8 @@ library(lattice)
 
 1. Setup the environment
 
-```{r}
+
+```r
 sourceZipFile <- 'activity.zip'
 sourceFile <- 'activity.csv'
 
@@ -34,7 +31,8 @@ if(!exists('activity_data')) {
 
 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r}
+
+```r
 # Coerce the proper data type for the date
 activity_data$date <- as.Date(activity_data$date, '%Y-%m-%d')
 ```
@@ -43,7 +41,8 @@ activity_data$date <- as.Date(activity_data$date, '%Y-%m-%d')
 
 1. Calculate the total number of steps taken per day.
 
-```{r}
+
+```r
 # Aggregate the number of steps by day ignoring any "NA" values
 steps_per_day <- aggregate(
     steps ~ date,
@@ -55,7 +54,8 @@ steps_per_day <- aggregate(
 
 2. If you do not understand the difference between a histogram and a barplot, research the difference between them.  Make a histogram of the total number of steps taken each day.
 
-```{r}
+
+```r
 # Draw the graph
 with(
     steps_per_day,
@@ -68,22 +68,26 @@ with(
 )
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)\
+
 3. Calculate and report the mean and median of the total number of steps taken per day.
 
-```{r}
+
+```r
 steps.mean <- mean(steps_per_day$steps, na.rm = TRUE)
 steps.median <- median(steps_per_day$steps, na.rm = TRUE)
 ```
 
-The mean number of steps per day was: **`r prettyNum(steps.mean, big.mark = ',')`**.
+The mean number of steps per day was: **10,766.19**.
 
-The median number of steps per day was: **`r prettyNum(steps.median, big.mark = ',')`**.
+The median number of steps per day was: **10,765**.
 
 ## What is the average daily activity pattern?
 
 1. Make a time series plot (i.e. `type="l"`) of the 5-minute interval (x-axis) and the average number of steps take, averaged across all days (y-axis).
 
-```{r}
+
+```r
 # Calculate the steps per interval
 intervals <- aggregate(
     steps ~ interval,
@@ -106,9 +110,12 @@ with(
 )
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)\
+
 2. Which 5-minute interval, on average across all days in the dataset, contains the maximum number of steps?
 
-```{r}
+
+```r
 # Calculate the maximum number of steps
 info.max_steps <- max(intervals$steps)
 
@@ -116,36 +123,40 @@ info.max_steps <- max(intervals$steps)
 info.max_interval <- intervals[intervals$steps == info.max_steps, ]$interval
 ```
 
-The 5-minute interval that on average contained the maximum number of steps was **`r info.max_interval`**.
+The 5-minute interval that on average contained the maximum number of steps was **835**.
 
 ## Imputing missing values
 
 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs).
 
-```{r}
+
+```r
 # Sum up the number of "NA" records
 info.na_count <- sum(is.na(activity_data$steps))
 ```
 
-The total number of missing values in this data set is **`r info.na_count`**.
+The total number of missing values in this data set is **2304**.
 
 2. Devise a strategy for filling in all of the missing values in the dataset.  The strategy does not need to be sophisticated.  For example, you could use the mean/median for that day, or for that 5-minute interval, etc.
 
-```{r}
+
+```r
 # Add the interval means onto the activity data
 activity_data <- merge(activity_data, intervals, by = 'interval', suffixes = c('', '.y'))
 ```
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r}
+
+```r
 # Overwrite the NA step values with the means
 activity_data[is.na(activity_data$steps), ]$steps <- activity_data[is.na(activity_data$steps), ]$steps.y
 ```
 
 4. Make a histogram of the total number of steps taken each day and calculate and report **mean** and **median** total number of steps taken per day.  Do these values differ from the estimates from the first part of the assignment?  What is the impact of imputing missing data on the estimates of the estimates of the total daily number of steps?
 
-```{r}
+
+```r
 # Aggregate the number of steps by day
 steps_per_day <- aggregate(
     steps ~ date,
@@ -163,7 +174,11 @@ with(
         ylab = 'Number of Days'
     )
 )
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)\
+
+```r
 # Calculate the mean and median values
 updated.mean <- mean(steps_per_day$steps)
 updated.median <- median(steps_per_day$steps)
@@ -173,17 +188,18 @@ diff.mean <- ((steps.mean - updated.mean) / steps.mean) * 100
 diff.median <- ((steps.median - updated.median) / steps.median) * 100
 ```
 
-The updated mean number of steps per day was: **`r prettyNum(updated.mean, big.mark = ',')`**.
+The updated mean number of steps per day was: **10,766.19**.
 
-The updated median number of steps per day was: **`r prettyNum(updated.median, big.mark = ',')`**.
+The updated median number of steps per day was: **10,766.19**.
 
-After imputing the mean value has changed by **`r sprintf('%.3f%%', diff.mean)`** and the median value has changed by **`r sprintf('%.3f%%', diff.median)`**.
+After imputing the mean value has changed by **0.000%** and the median value has changed by **-0.011%**.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 1. Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
-```{r}
+
+```r
 # Derive the type of day it is (i.e. weekend/weekday)
 activity_data$day_type <- as.factor(
     ifelse(
@@ -196,7 +212,8 @@ activity_data$day_type <- as.factor(
 
 2. Make a panel plot containing a time series plot (i.e. `type = 'l'`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).  See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
-```{r}
+
+```r
 # Find the mean of the data split out by the day types
 daily_activity <- with(
     activity_data,
@@ -218,5 +235,7 @@ xyplot(
     ylab = 'Average Number of Steps'
 )
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png)\
 
 It appears as though weekends are the most active time for the peopel in the study.
